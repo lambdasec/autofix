@@ -133,6 +133,7 @@ def process():
                 i = 0
                 for fixed_code in generations:
                     i += 1
+                    fixed_code = s[:prefix_index] + fixed_code + s[suffix_index:]
                     if os.path.exists(output_file):
                         os.remove(output_file)
                     with open(output_file, 'w') as wf:
