@@ -52,7 +52,7 @@ def infill(model, tokenizer_fim, prefix_suffix_tuples, max_new_tokens, temperatu
             top_p=1,
             num_return_sequences=10,
             max_new_tokens=max_new_tokens,
-            pad_token_id=tokenizer.eos_token_id,
+            pad_token_id=tokenizer_fim.eos_token_id,
             eos_token_id=end_sequence
         )
     # WARNING: cannot use skip_special_tokens, because it blows away the FIM special tokens.
@@ -137,6 +137,8 @@ def process():
                     if len(data["errors"]) == 0 and len(data["results"]) == 0:
                         print("\n Auto fixed file " + output_file + " with code generated at attempt " + str(i))
                         break
+                if i == 10:
+                    print("Auto fix couldn't fix the file " + input_file)
         else:
             print(input_file + " has parsing errors")
             exit(3)
