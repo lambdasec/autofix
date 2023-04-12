@@ -88,12 +88,13 @@ def process():
     else:
         print("Only .java, .js and .py files are supported as input")
         exit(1)
-    scan_command = "semgrep --config p/"+ config_str +" "+ input_file +" --output "+ tmp_file +" --json > /dev/null 2>&1"
+    scan_command_input = "semgrep --config p/"+ config_str +" "+ input_file +" --output "+ tmp_file +" --json > /dev/null 2>&1"
+    scan_command_output = "semgrep --config p/"+ config_str +" "+ output_file +" --output "+ tmp_file +" --json > /dev/null 2>&1"
     if os.path.isfile(input_file):
         if os.path.exists(tmp_file):
             os.remove(tmp_file)
         print("Scanning file " + input_file + "...")
-        os.system(scan_command)
+        os.system(scan_command_input)
         with open(tmp_file, 'r') as jf:
             data = json.load(jf)
         if len(data["errors"]) == 0:
@@ -140,7 +141,7 @@ def process():
                         wf.write(fixed_code)
                     if os.path.exists(tmp_file):
                         os.remove(tmp_file)
-                    os.system(scan_command)
+                    os.system(scan_command_output)
                     with open(tmp_file, 'r') as jf:
                         data = json.load(jf)
                     if len(data["errors"]) == 0 and len(data["results"]) == 0:
