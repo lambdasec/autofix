@@ -121,7 +121,15 @@ def process():
                 model = AutoModelForCausalLM.from_pretrained(model, trust_remote_code=True).to(device)
                 with open(tmp_prompt_file, 'r') as rf:
                     s = rf.read()
-                generations = code_generation(s, max_new_tokens, temperature, model, tokenizer_fim)
+                infill_token_id = s.find("<FILL-HERE>")
+                prefix_index = infill_token_id - 1600
+                if prefix_index < 0:
+                    prefix_index = 0 
+                suffix_index = infill_token_id + 1600
+                if suffix_index + 1600 > len(s):
+                    suffix_index = len(s)
+                text = s[prefix_index:suffix_index]
+                generations = code_generation(text, max_new_tokens, temperature, model, tokenizer_fim)
                 i = 0
                 for fixed_code in generations:
                     i += 1
