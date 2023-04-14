@@ -2,6 +2,8 @@
 
 Static Analysis + LLM = AutoFix
 
+In this initial release, we use Semgrep for doing static analysis and the [SantaFixer](https://huggingface.co/lambdasec/santafixer) LLM for bug fixing.
+
 ## Setup
 
 ```
