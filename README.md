@@ -19,3 +19,6 @@ python autofix.py --input examples/example.java
 ## Demo
 
 ![](https://github.com/lambdasec/autofix/blob/main/demo.gif)
+
+## How it works?
+![](https://github.com/lambdasec/autofix/blob/main/howitworks.png)
