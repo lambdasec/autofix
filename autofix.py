@@ -42,23 +42,25 @@ def fim_generation(model, tokenizer_fim, prompt, max_new_tokens, temperature):
         with torch.no_grad():
             outputs = model.generate(
                 **inputs,
-                # do_sample=True,
-                # temperature=temperature,
-                # top_p=1,
-                # num_return_sequences=10,
-                max_new_tokens=64,
+                do_sample=True,
+                temperature=temperature,
+                top_p=1,
+                num_return_sequences=10,
+                max_new_tokens=max_new_tokens,
                 pad_token_id=tokenizer_fim.eos_token_id
             )
         # print(tokenizer_fim.decode(generated_ids[0], skip_special_tokens=False)[len(text):])
-            list_of_middles = [extract_mask(tokenizer_fim.decode(tensor, skip_special_tokens=False),text) for tensor in outputs]
+        pats = [r"\n\n^#", "^'''", "\n\n\n"]
+        list_of_middles = [extract_mask(tokenizer_fim.decode(tensor, skip_special_tokens=False,truncate_before_pattern=pats), text) for tensor in outputs]
         return [post_processing_fim(prefix, middle, suffix) for middle in list_of_middles]
 
 def extract_mask(s: str, text: str):
     if EOM not in s:
         print("*** File truncated ***")  
-    end = s.find(EOM)
-    print(s)
-    return s[len(text):end]  
+    start = len(text)
+    stop = s.find(EOM, start) or len(s)
+    # print(s)
+    return s[start:stop]  
 
 def extract_fim_part(s: str):
     # Find the index of 
