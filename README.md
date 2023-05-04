@@ -2,6 +2,9 @@
 
 Static Analysis + LLM = AutoFix
 
+Update on 4th May 2023:
+- We now support using the [CodeGen2](https://github.com/salesforce/CodeGen2) model from Salesforce. Just use `--model Salesforce/codegen2-1B` with AutoFix.
+
 In this initial release, we use Semgrep for doing static analysis and the [SantaFixer](https://huggingface.co/lambdasec/santafixer) LLM for bug fixing.
 
 ## Setup
