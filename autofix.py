@@ -11,7 +11,14 @@ FIM_MIDDLE = "<fim-middle>"
 FIM_SUFFIX = "<fim-suffix>"
 FIM_PAD = "<fim-pad>"
 EOD = "<|endoftext|>"
+MASK_1 = "<mask_1>"
+SEP = "<sep>"
+EOM = "<eom>"
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+def format(prefix, suffix):
+  return prefix + MASK_1 + suffix + EOD + SEP + MASK_1
 
 def post_processing_fim(prefix, middle, suffix):
     return f"{prefix}{middle}{suffix}"
@@ -19,12 +26,38 @@ def post_processing_fim(prefix, middle, suffix):
 def fim_generation(model, tokenizer_fim, prompt, max_new_tokens, temperature):
     prefix = prompt.split("<FILL-HERE>")[0]
     suffix = prompt.split("<FILL-HERE>")[1]
-    list_of_middles = infill(model, tokenizer_fim, (prefix, suffix), max_new_tokens, temperature)
-    # for middle in list_of_middles:
-    #     print("\n<options>\n")
-    #     print(middle)
-    # [middle] = [list_of_middles[0]]
-    return [post_processing_fim(prefix, middle, suffix) for middle in list_of_middles]
+    if model == "lambdasec/santafixer" :
+        list_of_middles = infill(model, tokenizer_fim, (prefix, suffix), max_new_tokens, temperature)
+        # for middle in list_of_middles:
+        #     print("\n<options>\n")
+        #     print(middle)
+        # [middle] = [list_of_middles[0]]
+        return [post_processing_fim(prefix, middle, suffix) for middle in list_of_middles]
+    else :
+        text = format(prefix, suffix)
+        # input_ids = tokenizer(text, return_tensors="pt").input_ids
+        # generated_ids = model.generate(input_ids, max_length=128)
+        inputs = tokenizer_fim(text, return_tensors="pt", return_token_type_ids=False,
+                           max_length=1024, truncation=True).to(device)
+        with torch.no_grad():
+            outputs = model.generate(
+                **inputs,
+                do_sample=True,
+                temperature=temperature,
+                top_p=1,
+                num_return_sequences=1,
+                max_new_tokens=max_new_tokens,
+                pad_token_id=tokenizer_fim.eos_token_id
+            )
+        # print(tokenizer_fim.decode(generated_ids[0], skip_special_tokens=False)[len(text):])
+            list_of_middles = [extract_mask(tokenizer_fim.decode(tensor, skip_special_tokens=False)) for tensor in outputs]
+        return [post_processing_fim(prefix, middle, suffix) for middle in list_of_middles]
+
+def extract_mask(s: str, text: str):
+    if MASK_1 not in s:
+        print("*** File truncated ***")  
+    end = s.find(EOM)
+    return s[len(text):end]  
 
 def extract_fim_part(s: str):
     # Find the index of 
@@ -115,10 +148,11 @@ def process():
                 print("Attempting fix with prompt file " + tmp_prompt_file + "...")
                 model = "lambdasec/santafixer" if opt.model is None else opt.model
                 tokenizer_fim = AutoTokenizer.from_pretrained(model, trust_remote_code=True, padding_side="left")
-                tokenizer_fim.add_special_tokens({
-                    "additional_special_tokens": [EOD, FIM_PREFIX, FIM_MIDDLE, FIM_SUFFIX, FIM_PAD],
-                    "pad_token": EOD,
-                })
+                if model == "lambdasec/santafixer":
+                    tokenizer_fim.add_special_tokens({
+                        "additional_special_tokens": [EOD, FIM_PREFIX, FIM_MIDDLE, FIM_SUFFIX, FIM_PAD],
+                        "pad_token": EOD,
+                    })
                 model = AutoModelForCausalLM.from_pretrained(model, trust_remote_code=True).to(device)
                 with open(tmp_prompt_file, 'r') as rf:
                     s = rf.read()
