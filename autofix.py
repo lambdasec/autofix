@@ -26,7 +26,7 @@ def post_processing_fim(prefix, middle, suffix):
 def fim_generation(model, tokenizer_fim, prompt, max_new_tokens, temperature):
     prefix = prompt.split("<FILL-HERE>")[0]
     suffix = prompt.split("<FILL-HERE>")[1]
-    if opt.model is None:
+    if opt.model is None or opt.model =="bigcode/santacoder" or opt.model == "lambdasec/santafixer":
         list_of_middles = infill(model, tokenizer_fim, (prefix, suffix), max_new_tokens, temperature)
         # for middle in list_of_middles:
         #     print("\n<options>\n")
@@ -152,7 +152,7 @@ def process():
                 model = "lambdasec/santafixer" if opt.model is None else opt.model
                 tokenizer_fim = AutoTokenizer.from_pretrained(model, trust_remote_code=True, padding_side="left")
                 
-                if model == "lambdasec/santafixer":
+                if model == "lambdasec/santafixer" or model == "bigcode/santacoder":
                     tokenizer_fim.add_special_tokens({
                         "additional_special_tokens": [EOD, FIM_PREFIX, FIM_MIDDLE, FIM_SUFFIX, FIM_PAD]
                     })
