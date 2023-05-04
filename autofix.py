@@ -26,14 +26,14 @@ def post_processing_fim(prefix, middle, suffix):
 def fim_generation(model, tokenizer_fim, prompt, max_new_tokens, temperature):
     prefix = prompt.split("<FILL-HERE>")[0]
     suffix = prompt.split("<FILL-HERE>")[1]
-    if model == "lambdasec/santafixer" :
+    if opt.model is None:
         list_of_middles = infill(model, tokenizer_fim, (prefix, suffix), max_new_tokens, temperature)
         # for middle in list_of_middles:
         #     print("\n<options>\n")
         #     print(middle)
         # [middle] = [list_of_middles[0]]
         return [post_processing_fim(prefix, middle, suffix) for middle in list_of_middles]
-    else :
+    else:
         text = format(prefix, suffix)
         # input_ids = tokenizer(text, return_tensors="pt").input_ids
         # generated_ids = model.generate(input_ids, max_length=128)
@@ -51,7 +51,7 @@ def fim_generation(model, tokenizer_fim, prompt, max_new_tokens, temperature):
             )
         # print(tokenizer_fim.decode(generated_ids[0], skip_special_tokens=False)[len(text):])
         pats = [r"\n\n^#", "^'''", "\n\n\n"]
-        list_of_middles = [extract_mask(tokenizer_fim.decode(tensor, skip_special_tokens=False,truncate_before_pattern=pats), text) for tensor in outputs]
+        list_of_middles = [extract_mask(tokenizer_fim.decode(tensor, skip_special_tokens=False, truncate_before_pattern=pats), text) for tensor in outputs]
         return [post_processing_fim(prefix, middle, suffix) for middle in list_of_middles]
 
 def extract_mask(s: str, text: str):
@@ -158,9 +158,11 @@ def process():
                     })
                     
                 tokenizer_fim.add_special_tokens({
-                        "pad_token": EOD
+                    "pad_token": EOD
                 })
+                
                 model = AutoModelForCausalLM.from_pretrained(model, trust_remote_code=True).to(device)
+                
                 with open(tmp_prompt_file, 'r') as rf:
                     s = rf.read()
                 infill_token_id = s.find("<FILL-HERE>")
