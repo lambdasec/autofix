@@ -6,6 +6,8 @@ import sys
 import json
 import argparse
 
+
+HF_TOKEN = os.environ.get("HF_TOKEN")
 FIM_PREFIX = "<fim-prefix>"
 FIM_MIDDLE = "<fim-middle>"
 FIM_SUFFIX = "<fim-suffix>"
@@ -26,7 +28,7 @@ def post_processing_fim(prefix, middle, suffix):
 def fim_generation(model, tokenizer_fim, prompt, max_new_tokens, temperature):
     prefix = prompt.split("<FILL-HERE>")[0]
     suffix = prompt.split("<FILL-HERE>")[1]
-    if opt.model is None or opt.model =="bigcode/santacoder" or opt.model == "lambdasec/santafixer":
+    if opt.model is None or opt.model.startswith("bigcode") or opt.model == "lambdasec/santafixer":
         list_of_middles = infill(model, tokenizer_fim, (prefix, suffix), max_new_tokens, temperature)
         # for middle in list_of_middles:
         #     print("\n<options>\n")
@@ -150,7 +152,7 @@ def process():
                     wf.write(write_content)
                 print("Attempting fix with prompt file " + tmp_prompt_file + "...")
                 model = "lambdasec/santafixer" if opt.model is None else opt.model
-                tokenizer_fim = AutoTokenizer.from_pretrained(model, trust_remote_code=True, padding_side="left")
+                tokenizer_fim = AutoTokenizer.from_pretrained(model, trust_remote_code=True, padding_side="left", use_auth_token=HF_TOKEN)
                 
                 if model == "lambdasec/santafixer" or model == "bigcode/santacoder":
                     tokenizer_fim.add_special_tokens({
@@ -161,7 +163,7 @@ def process():
                     "pad_token": EOD
                 })
                 
-                model = AutoModelForCausalLM.from_pretrained(model, trust_remote_code=True).to(device)
+                model = AutoModelForCausalLM.from_pretrained(model, trust_remote_code=True, use_auth_token=HF_TOKEN).to(device)
                 
                 with open(tmp_prompt_file, 'r') as rf:
                     s = rf.read()
