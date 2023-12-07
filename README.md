@@ -4,10 +4,8 @@ Static Analysis + LLM = AutoFix
 
 _Note: If you are looking for a cloud service for vulnerability remediation, please try [patched](https://www.patched.codes/)._
 
-Update on 21th Aug 2023:
 - The new [StarCoder](https://huggingface.co/bigcode/starcoderbase-1b) model is now supported. Pass `--model bigcode/starcoderbase-1b` to AutoFix to try the 1B parameter base model. 
 
-Update on 4th May 2023:
 - We now support using the [CodeGen2](https://github.com/salesforce/CodeGen2) model from Salesforce. Just use `--model Salesforce/codegen2-1B` with AutoFix. Note that the inference on CPU with `CodeGen2` is very slow compared to `SantaFixer`.
 
 In the initial release, we used Semgrep for doing static analysis and the [SantaFixer](https://huggingface.co/lambdasec/santafixer) LLM for bug fixing.
