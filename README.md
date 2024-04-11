@@ -1,8 +1,8 @@
+**Active development on this project has now moved to [Patchwork](https://github.com/patched-codes/patchwork). Patchwork is a more generic framework that combine tools and LLMs in agentic workflows for software development.**
+
 # AutoFix
 
 Static Analysis + LLM = AutoFix
-
-**Active development on this project has now moved to [Patchwork](https://github.com/patched-codes/patchwork). Patchwork is a more generic framework that combine tools and LLMs in agentic workflows for software development.**
 
 _Note: If you are looking for a cloud service for vulnerability remediation, please try [patched](https://www.patched.codes/)._
 
