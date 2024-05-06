@@ -1,4 +1,4 @@
-**Active development on this project has now moved to [Patchwork](https://github.com/patched-codes/patchwork). Patchwork is a more generic framework that combine tools and LLMs in agentic workflows for software development.**
+**Active development on this project has now moved to [Patchwork](https://github.com/patched-codes/patchwork). Patchwork is a more generic framework that combines tools and LLMs in agentic workflows for software development.**
 
 # AutoFix
 
